@@ -1,0 +1,24 @@
+# Søkefiltre – juster fritt
+filters:
+  locations: [Bergen, Oslo, Kristiansand]
+  full_time_only: true
+  include_levels: [junior, nyutdannet, graduate, trainee]
+  exclude_title_words: [senior, lead, principal]
+  fields: [utvikler, developer, backend, frontend, fullstack, data, cloud, devops, it-konsulent]
+  boost_keywords: [python, typescript, react, java, c#, sql]
+
+# Selskaper vi følger direkte (i tillegg til NAV og Jobbnorge)
+companies:
+  - name: Stacc
+    source: teamtailor
+    url: https://jobs.stacc.com
+  - name: Webstep
+    source: teamtailor
+    url: https://karriere.webstep.no
+  - name: Tieto
+    source: smartrecruiters
+    id: tietoevry1
+
+# Jobbvarsler på e-post (FINN, LinkedIn, The Hub, Workday-sider …)
+email_alerts:
+  enabled: false   # slås på når Gmail-kontoen er satt opp
