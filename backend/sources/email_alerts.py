@@ -116,11 +116,18 @@ def html_parts(message: Message) -> list[str]:
 
 
 def fetch(config: dict) -> list[dict]:
-    address = os.environ.get("GMAIL_ADDRESS", "").strip()
-    password = os.environ.get("GMAIL_APP_PASSWORD", "").replace(" ", "")
+    # Fjern mellomrom, linjeskift og anførselstegn som lett blir med ved innliming
+    address = os.environ.get("GMAIL_ADDRESS", "").strip().strip("\"'").strip()
+    password = "".join(os.environ.get("GMAIL_APP_PASSWORD", "").split()).strip("\"'")
     if not address or not password:
         print("  (GMAIL_ADDRESS/GMAIL_APP_PASSWORD ikke satt – hopper over e-post)")
         return []
+
+    # Feilsøking uten å avsløre noe hemmelig: viser bare starten og domenet på adressen
+    # og lengden på passordet (et app-passord fra Google skal være 16 tegn)
+    user, _, domain = address.partition("@")
+    print(f"  Logger inn som {user[:3]}…@{domain or '(mangler @domene!)'}, "
+          f"app-passord: {len(password)} tegn")
 
     days_back = config.get("email_alerts", {}).get("days_back", 14)
     since = (date.today() - timedelta(days=days_back)).strftime("%d-%b-%Y")

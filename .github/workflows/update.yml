@@ -14,12 +14,17 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true  # en ny kjøring erstatter en som henger i kø
 
 jobs:
-  build:
+  # Én jobb på én maskin: hent → bygg → publiser.
+  # (To jobber betydde to ganger venting på ledig maskin hos GitHub.)
+  update:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,17 +46,9 @@ jobs:
       - run: npm install && npm run build
         working-directory: frontend
 
-      # 3) Last opp til GitHub Pages
+      # 3) Publiser til GitHub Pages
       - uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
