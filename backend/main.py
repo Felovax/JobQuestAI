@@ -3,6 +3,7 @@
 Kjør fra repo-roten:   python backend/main.py
 """
 import json
+import sys
 import time
 import traceback
 from datetime import datetime, timezone
@@ -28,6 +29,8 @@ SOURCES = [
 
 
 def main() -> None:
+    # Skriv ut linje for linje, så loggen i GitHub Actions viser fremdriften underveis
+    sys.stdout.reconfigure(line_buffering=True)
     config = yaml.safe_load(CONFIG_FILE.read_text(encoding="utf-8"))
 
     all_jobs, status = [], []

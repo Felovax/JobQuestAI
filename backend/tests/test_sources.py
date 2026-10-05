@@ -77,3 +77,11 @@ def test_epost_lenker():
     assert [j["apply_url"] for j in jobs] == ["https://www.linkedin.com/jobs/view/123456",
                                               "https://www.finn.no/job/ad/433221100"]
     assert jobs[0]["title"] == "Junior utvikler" and jobs[0]["company"] == "Bouvet"
+
+
+def test_jobbnorge_finner_listen_uansett_innpakning():
+    job = {"id": 1, "title": "x"}
+    assert jobbnorge.extract_jobs([job]) == [job]
+    assert jobbnorge.extract_jobs({"jobs": [job], "count": 1}) == [job]
+    assert jobbnorge.extract_jobs({"data": {"items": [job]}}) == [job]
+    assert jobbnorge.extract_jobs(["tekst"]) == []

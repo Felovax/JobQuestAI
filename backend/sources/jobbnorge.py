@@ -39,4 +39,20 @@ def to_job(job: dict) -> dict:
 def fetch(config: dict) -> list[dict]:
     response = requests.get(API_URL, timeout=60, headers={"Accept": "application/json"})
     response.raise_for_status()
-    return [to_job(job) for job in response.json()]
+    return [to_job(job) for job in extract_jobs(response.json())]
+
+
+def extract_jobs(body) -> list[dict]:
+    """API-et kan svare med en liste direkte, eller med en liste pakket inn i et
+    objekt (f.eks. {"jobs": [...]}). Vi finner listen med stillinger uansett."""
+    if isinstance(body, list):
+        return [j for j in body if isinstance(j, dict)]
+    if isinstance(body, dict):
+        for value in body.values():
+            if isinstance(value, list) and value and isinstance(value[0], dict):
+                return value
+            if isinstance(value, dict):          # ett nivå dypere, f.eks. {"data": {"jobs": [...]}}
+                found = extract_jobs(value)
+                if found:
+                    return found
+    return []

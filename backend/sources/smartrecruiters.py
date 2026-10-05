@@ -47,13 +47,18 @@ def fetch(config: dict) -> list[dict]:
         while True:
             response = requests.get(
                 API.format(id=company["id"]),
-                params={"country": "no", "limit": 100, "offset": offset},
+                params={"limit": 100, "offset": offset},
                 timeout=30,
             )
             response.raise_for_status()
             body = response.json()
             postings = body.get("content") or []
             for posting in postings:
+                # Store selskaper har stillinger i mange land – vi tar bare Norge,
+                # og henter beskrivelse (ekstra kall) kun for dem
+                country = ((posting.get("location") or {}).get("country") or "").lower()
+                if country not in ("no", "nor", "norway", "norge"):
+                    continue
                 jobs.append(to_job(posting, company["id"], company["name"], fetch_description(posting)))
             offset += len(postings)
             if not postings or offset >= body.get("totalFound", 0):

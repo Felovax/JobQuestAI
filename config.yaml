@@ -44,7 +44,7 @@ companies:
     url: https://karriere.webstep.no
   - name: Tieto
     source: smartrecruiters
-    id: tietoevry1
+    id: Tieto2
 
 # Jobbvarsler på e-post (FINN, LinkedIn, The Hub, Indeed).
 # Krever secrets GMAIL_ADDRESS og GMAIL_APP_PASSWORD i GitHub.
