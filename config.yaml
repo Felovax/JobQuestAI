@@ -1,13 +1,40 @@
-# Søkefiltre – juster fritt
+# ─────────────────────────────────────────────────────────────
+# JobQuestAI – innstillinger. Dette er filen dere redigerer.
+# Endringer slår inn ved neste kjøring (hver natt, eller manuelt
+# under Actions → "Oppdater stillinger" → Run workflow).
+# ─────────────────────────────────────────────────────────────
+
 filters:
+  # Steder vi følger. Stillinger uten oppgitt sted slipper alltid gjennom.
   locations: [Bergen, Oslo, Kristiansand]
+
+  # Fjern deltid, vikariat osv. når kilden oppgir det
   full_time_only: true
-  include_levels: [junior, nyutdannet, graduate, trainee]
-  exclude_title_words: [senior, lead, principal]
-  fields: [utvikler, developer, backend, frontend, fullstack, data, cloud, devops, it-konsulent]
-  boost_keywords: [python, typescript, react, java, c#, sql]
+
+  # Ord som gir ekstra poeng fordi de tyder på at nyutdannede passer
+  include_levels: [junior, nyutdannet, nyutdannede, graduate, trainee, bachelor]
+
+  # Stillingen forkastes hvis tittelen inneholder et av disse ordene
+  exclude_title_words: [senior, lead, principal, sjef, leder, arkitekt]
+
+  # Tittelen må inneholde minst ett av disse (eller et boost-ord) for å regnes som IT
+  fields: [utvikler, developer, programmerer, software, systemutvikl, backend, frontend,
+           fullstack, data, cloud, devops, it, ikt, sikkerhet, security, teknolog, tech,
+           engineer, applikasjon]
+
+  # Teknologier som gir høyere rangering
+  boost_keywords: [python, typescript, javascript, react, java, "c#", ".net", sql, azure, aws]
+
+  # Laveste score for å vises (0–100)
+  min_score: 20
+
+# NAV: hvor mange dager tilbake vi leser feeden
+nav:
+  days_back: 45
 
 # Selskaper vi følger direkte (i tillegg til NAV og Jobbnorge)
+#   teamtailor:      url = karrieresiden (vi leser <url>/jobs.rss)
+#   smartrecruiters: id  = firma-ID fra careers.smartrecruiters.com/<id>
 companies:
   - name: Stacc
     source: teamtailor
@@ -19,6 +46,7 @@ companies:
     source: smartrecruiters
     id: tietoevry1
 
-# Jobbvarsler på e-post (FINN, LinkedIn, The Hub, Workday-sider …)
+# Jobbvarsler på e-post (FINN, LinkedIn, The Hub, Indeed).
+# Krever secrets GMAIL_ADDRESS og GMAIL_APP_PASSWORD i GitHub.
 email_alerts:
-  enabled: false   # slås på når Gmail-kontoen er satt opp
+  days_back: 14

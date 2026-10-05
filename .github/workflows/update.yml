@@ -1,0 +1,57 @@
+name: Oppdater stillinger
+
+on:
+  schedule:
+    - cron: "17 4 * * *"   # hver natt ca. kl 06 norsk tid
+  workflow_dispatch:        # "Run workflow"-knapp under Actions
+  push:
+    branches: [main]        # også når koden eller config.yaml endres
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1) Hent stillinger → frontend/public/jobs.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r backend/requirements.txt
+      - run: python backend/main.py
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NAV_TOKEN: ${{ secrets.NAV_TOKEN }}
+
+      # 2) Bygg nettsiden
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install && npm run build
+        working-directory: frontend
+
+      # 3) Last opp til GitHub Pages
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

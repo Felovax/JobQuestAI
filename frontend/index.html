@@ -6,7 +6,33 @@
     <title>JobQuestAI</title>
   </head>
   <body>
-    <div id="app"></div>
+    <header>
+      <div class="brand">Job<span>Quest</span>AI</div>
+      <input id="search" type="search" placeholder="Søk i tittel, firma eller tekst" />
+    </header>
+
+    <main>
+      <section class="controls">
+        <nav id="tabs">
+          <button data-show="open" class="on">Åpne</button>
+          <button data-show="applied">Søkt</button>
+          <button data-show="hidden">Skjult</button>
+        </nav>
+        <div class="row"><span class="label">Sted</span><div id="cities" class="chips"></div></div>
+        <div class="row"><span class="label">Kilde</span><div id="sources" class="chips"></div></div>
+        <div class="row between">
+          <strong id="count"></strong>
+          <select id="sort">
+            <option value="score">Best match først</option>
+            <option value="newest">Nyeste først</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="list"><p class="empty">Laster …</p></section>
+    </main>
+
+    <footer id="footer"></footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
