@@ -13,7 +13,7 @@ import yaml
 
 import dedupe
 import filters
-from sources import email_alerts, jobbnorge, nav, smartrecruiters, teamtailor
+from sources import easycruit, email_alerts, jobbnorge, nav, recruitee, smartrecruiters, teamtailor
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_FILE = ROOT / "config.yaml"
@@ -24,6 +24,8 @@ SOURCES = [
     ("Jobbnorge", jobbnorge),
     ("Teamtailor", teamtailor),
     ("SmartRecruiters", smartrecruiters),
+    ("Recruitee", recruitee),
+    ("EasyCruit", easycruit),
     ("E-postvarsler", email_alerts),
 ]
 

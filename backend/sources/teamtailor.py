@@ -50,7 +50,10 @@ def fetch(config: dict) -> list[dict]:
         if company.get("source") != "teamtailor":
             continue
         url = company["url"].rstrip("/") + "/jobs.rss"
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        jobs += parse_rss(response.text, company["name"])
+        try:   # ett selskap som feiler skal ikke stoppe de andre
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            jobs += parse_rss(response.text, company["name"])
+        except Exception as error:
+            print(f"  ! {company['name']}: {error}")
     return jobs
