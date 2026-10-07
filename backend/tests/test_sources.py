@@ -85,3 +85,31 @@ def test_jobbnorge_finner_listen_uansett_innpakning():
     assert jobbnorge.extract_jobs({"jobs": [job], "count": 1}) == [job]
     assert jobbnorge.extract_jobs({"data": {"items": [job]}}) == [job]
     assert jobbnorge.extract_jobs(["tekst"]) == []
+
+
+def test_recruitee():
+    from sources import recruitee
+    job = recruitee.to_job({"id": 7, "title": "Utvikler", "location": "Bergen, Norway",
+                            "careers_url": "https://jobs.variant.no/o/utvikler",
+                            "description": "<p>Hei</p>", "published_at": "2026-09-25 11:42:27 UTC",
+                            "employment_type_code": "fulltime_permanent"}, "Variant")
+    assert job["extent"] == "Heltid" and job["published"] == "2026-09-25"
+    assert job["location"] == "Bergen, Norway" and job["description"] == "Hei"
+
+
+EASYCRUIT = """<?xml version="1.0" encoding="UTF-8"?>
+<VacancyList><Vacancy id="123" date_start="2026-10-01">
+  <Versions><Version language="nb">
+    <Title>Driftsingeniør</Title><TitleHeading>Bli med i Eviny</TitleHeading>
+    <Location><Name>Bergen - Skipet</Name></Location>
+    <ApplicationDeadline>2026-10-20</ApplicationDeadline>
+    <VacancyURL>https://eviny.easycruit.com/vacancy/123</VacancyURL>
+  </Version></Versions>
+</Vacancy></VacancyList>"""
+
+
+def test_easycruit():
+    from sources import easycruit
+    jobs = easycruit.parse_xml(EASYCRUIT, "Eviny")
+    assert jobs[0]["title"] == "Driftsingeniør" and jobs[0]["location"] == "Bergen - Skipet"
+    assert jobs[0]["apply_url"].endswith("/123") and jobs[0]["published"] == "2026-10-01"

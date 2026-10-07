@@ -1,12 +1,17 @@
-"""Jobbvarsler fra en egen Gmail-innboks (FINN, LinkedIn, The Hub, Indeed …).
+"""Jobbvarsler fra en e-postinnboks (FINN, LinkedIn, The Hub, Indeed …).
+
+Støtter Gmail og iCloud – tjenesten velges ut fra adressen.
 
 Slik virker det:
-  1. Dere setter opp vanlige jobbvarsler på FINN, LinkedIn osv. til Gmail-kontoen.
+  1. Dere setter opp vanlige jobbvarsler på FINN, LinkedIn osv. til e-postkontoen.
   2. Hver natt logger skriptet inn med IMAP (app-passord) og leser e-postene
      fra de siste dagene, uten å markere dem som lest.
   3. Vi leter etter lenker til stillinger i e-postene og lager én stilling per lenke.
 
-Krever secrets GMAIL_ADDRESS og GMAIL_APP_PASSWORD. Uten dem hoppes kilden over.
+Krever secrets GMAIL_ADDRESS og GMAIL_APP_PASSWORD (navnene gjelder også for iCloud).
+App-passord lages hos Google (myaccount.google.com/apppasswords) eller
+Apple (account.apple.com → Logg på og sikkerhet → Appspesifikke passord).
+Uten secrets hoppes kilden over.
 E-post gir sjelden full annonsetekst, så disse stillingene har kort beskrivelse.
 """
 import email
@@ -27,6 +32,15 @@ JOB_LINKS = [
     ("The Hub", r"thehub\.io/jobs/([0-9a-f]{20,})", "https://thehub.io/jobs/{}"),
     ("Indeed", r"indeed\.com/\S*?[?&]jk=([0-9a-f]+)", "https://no.indeed.com/viewjob?jk={}"),
 ]
+
+# Hvilken IMAP-server som hører til hvilket e-postdomene
+IMAP_SERVERS = {
+    "gmail.com": "imap.gmail.com",
+    "googlemail.com": "imap.gmail.com",
+    "icloud.com": "imap.mail.me.com",
+    "me.com": "imap.mail.me.com",
+    "mac.com": "imap.mail.me.com",
+}
 
 # Lenketekster som ikke er stillingstitler
 GENERIC_TEXT = {"se stillingen", "se annonsen", "view job", "apply", "søk", "les mer",
@@ -126,13 +140,15 @@ def fetch(config: dict) -> list[dict]:
     # Feilsøking uten å avsløre noe hemmelig: viser bare starten og domenet på adressen
     # og lengden på passordet (et app-passord fra Google skal være 16 tegn)
     user, _, domain = address.partition("@")
-    print(f"  Logger inn som {user[:3]}…@{domain or '(mangler @domene!)'}, "
-          f"app-passord: {len(password)} tegn")
+    server = config.get("email_alerts", {}).get("imap_server") or IMAP_SERVERS.get(domain.lower())
+    if not server:
+        raise RuntimeError(f"Ukjent e-postdomene '{domain}'. Sett email_alerts.imap_server i config.yaml")
+    print(f"  Logger inn som {user[:3]}…@{domain} på {server}, app-passord: {len(password)} tegn")
 
     days_back = config.get("email_alerts", {}).get("days_back", 14)
     since = (date.today() - timedelta(days=days_back)).strftime("%d-%b-%Y")
 
-    imap = imaplib.IMAP4_SSL("imap.gmail.com")
+    imap = imaplib.IMAP4_SSL(server)
     imap.login(address, password)
     imap.select("INBOX", readonly=True)    # readonly: endrer ingenting i innboksen
     _, data = imap.search(None, "SINCE", since)
@@ -140,7 +156,11 @@ def fetch(config: dict) -> list[dict]:
     jobs = []
     for num in data[0].split():
         _, msg_data = imap.fetch(num, "(BODY.PEEK[])")
-        message = email.message_from_bytes(msg_data[0][1])
+        # Selve e-posten er bytes-delen av svaret (plasseringen varierer litt mellom tjenester)
+        raw = next((part[1] for part in msg_data if isinstance(part, tuple)), None)
+        if not raw:
+            continue
+        message = email.message_from_bytes(raw)
         subject = str(make_header(decode_header(message.get("Subject", ""))))
         for body in html_parts(message):
             for job in jobs_from_html(body):

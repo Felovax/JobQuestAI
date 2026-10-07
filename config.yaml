@@ -34,17 +34,67 @@ nav:
 
 # Selskaper vi følger direkte (i tillegg til NAV og Jobbnorge)
 #   teamtailor:      url = karrieresiden (vi leser <url>/jobs.rss)
+#   recruitee:       url = karrieresiden (vi leser <url>/api/offers/)
+#   easycruit:       url = https://<firma>.easycruit.com
 #   smartrecruiters: id  = firma-ID fra careers.smartrecruiters.com/<id>
+# Alle feedene er sjekket og virker. Stillinger utenfor stedene våre filtreres bort.
 companies:
-  - name: Stacc
-    source: teamtailor
-    url: https://jobs.stacc.com
+  # ── Konsulentselskaper med kontor i Bergen ──
   - name: Webstep
     source: teamtailor
     url: https://karriere.webstep.no
+  - name: Sonat
+    source: teamtailor
+    url: https://sonatas.teamtailor.com
+  - name: Avo Consulting
+    source: teamtailor
+    url: https://karriere.avoconsulting.no
+  - name: Variant
+    source: recruitee
+    url: https://jobs.variant.no
+  - name: Kantega
+    source: recruitee
+    url: https://jobb.kantega.no
+  - name: Sopra Steria
+    source: smartrecruiters
+    id: SopraSteria1
+  - name: Evidi
+    source: teamtailor
+    url: https://evidi.teamtailor.com
+  - name: NetNordic
+    source: teamtailor
+    url: https://netnordicgroupas.teamtailor.com
+  - name: Forte Digital
+    source: teamtailor
+    url: https://fortedigital.teamtailor.com
+
+  # ── Store IT-selskaper ──
   - name: Tieto
     source: smartrecruiters
     id: Tieto2
+  - name: Itera
+    source: teamtailor
+    url: https://itera.teamtailor.com
+  - name: twoday
+    source: teamtailor
+    url: https://twodaynorway.teamtailor.com
+  - name: Computas
+    source: teamtailor
+    url: https://computas.teamtailor.com
+  - name: Visma Enterprise
+    source: teamtailor
+    url: https://karriere.vismaenterprise.no
+
+  # ── Produkt- og teknologiselskaper i Bergen ──
+  - name: Stacc
+    source: teamtailor
+    url: https://jobs.stacc.com
+  - name: Vizrt
+    source: smartrecruiters
+    id: Vizrt1
+  - name: Eviny
+    source: easycruit
+    url: https://eviny.easycruit.com
 
 # Jobbvarsler på e-post (FINN, LinkedIn, The Hub, Indeed).
 # Krever secrets GMAIL_ADDRESS og GMAIL_APP_PASSWORD i GitHub.
