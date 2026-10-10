@@ -37,6 +37,7 @@ def merge(jobs: list[dict]) -> list[dict]:
             "score": max(j.get("score", 0) for j in group),
             "published": min((j["published"] for j in group if j["published"]), default=""),
             "deadline": next((j["deadline"] for j in group if j["deadline"]), None),
+            "deadline_date": next((j["deadline_date"] for j in group if j.get("deadline_date")), ""),
             "sources": list(dict.fromkeys(j["source"] for j in group)),
             "links": links,
         })

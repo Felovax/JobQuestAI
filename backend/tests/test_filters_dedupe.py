@@ -54,3 +54,13 @@ def test_duplikater_slas_sammen():
     assert merged[0]["description"] == "mye lengre tekst"
     assert merged[0]["sources"] == ["NAV", "Stacc"]
     assert len(merged[0]["links"]) == 2
+
+
+def test_frister_tolkes():
+    from utils import parse_deadline
+    assert parse_deadline("2026-10-20T00:00:00") == "2026-10-20"
+    assert parse_deadline("01.11.2026") == "2026-11-01"
+    assert parse_deadline("Frist 5.1.27") == "2027-01-05"
+    assert parse_deadline("Snarest") == ""
+    assert parse_deadline("Løpende") == ""
+    assert parse_deadline(None) == ""

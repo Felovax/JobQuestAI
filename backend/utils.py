@@ -37,3 +37,23 @@ def to_iso_date(value: str | None) -> str:
             continue
     match = re.match(r"(\d{4}-\d{2}-\d{2})", value)  # f.eks. med tidssone på slutten
     return match.group(1) if match else ""
+
+
+def parse_deadline(value: str | None) -> str:
+    """Finner en dato i søknadsfristen og gir '2026-10-20', eller '' hvis det ikke
+    står noen dato (f.eks. 'Snarest' eller 'Løpende')."""
+    if not value:
+        return ""
+    iso = to_iso_date(value)
+    if iso:
+        return iso
+    # Datoer midt i tekst, f.eks. "Frist 1.11.2026" eller "20.10.26"
+    match = re.search(r"\b(\d{1,2})[./](\d{1,2})[./](\d{2,4})\b", value)
+    if match:
+        day, month, year = (int(x) for x in match.groups())
+        year += 2000 if year < 100 else 0
+        try:
+            return datetime(year, month, day).date().isoformat()
+        except ValueError:
+            return ""
+    return ""

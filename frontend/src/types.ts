@@ -10,7 +10,8 @@ export type Job = {
   description: string;
   apply_url: string;
   published: string; // "2026-10-05" eller ""
-  deadline: string | null;
+  deadline: string | null;      // fristen slik kilden skriver den, f.eks. "Snarest"
+  deadline_date: string;        // fristen som dato "2026-10-20", eller "" hvis ukjent
   extent: string | null;
   source: string;
   sources: string[];

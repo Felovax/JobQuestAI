@@ -6,13 +6,14 @@ import json
 import sys
 import time
 import traceback
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import yaml
 
 import dedupe
 import filters
+from utils import parse_deadline
 from sources import easycruit, email_alerts, jobbnorge, nav, recruitee, smartrecruiters, teamtailor
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -48,6 +49,13 @@ def main() -> None:
         except Exception as error:
             traceback.print_exc()
             status.append({"name": name, "ok": False, "count": 0, "error": str(error)[:200]})
+
+    # Fristen som ekte dato ("2026-10-20"), så nettsiden kan sortere og varsle.
+    # Stillinger der fristen allerede har gått ut, tas ikke med.
+    today = date.today().isoformat()
+    for job in all_jobs:
+        job["deadline_date"] = parse_deadline(job.get("deadline"))
+    all_jobs = [j for j in all_jobs if not j["deadline_date"] or j["deadline_date"] >= today]
 
     kept = filters.apply(all_jobs, config["filters"])
     merged = dedupe.merge(kept)

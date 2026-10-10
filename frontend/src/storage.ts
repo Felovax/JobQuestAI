@@ -19,3 +19,23 @@ export function saveMarks(marks: Marks): void {
     // ikke kritisk – merkingen varer da bare til siden lastes på nytt
   }
 }
+
+// CV-teksten brukes i søknadsprompten. Den lagres bare i nettleseren din,
+// aldri i repoet (som er offentlig).
+const CV_KEY = "jobquest-cv";
+
+export function loadCv(): string {
+  try {
+    return localStorage.getItem(CV_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function saveCv(cv: string): void {
+  try {
+    localStorage.setItem(CV_KEY, cv);
+  } catch {
+    // privat vindu: CV-en må limes inn på nytt neste gang
+  }
+}
