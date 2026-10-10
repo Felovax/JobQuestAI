@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JobQuestAI</title>
+    <script type="module" crossorigin src="./assets/index-Bnj2Lznv.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-ChuwmYNS.css">
+  </head>
+  <body>
+    <header>
+      <div class="brand">Job<span>Quest</span>AI</div>
+      <input id="search" type="search" placeholder="Søk i tittel, firma eller tekst" />
+      <button id="cv-open" class="btn">Min CV</button>
+    </header>
+
+    <main>
+      <section class="controls">
+        <nav id="tabs">
+          <button data-show="open" class="on">Åpne</button>
+          <button data-show="applied">Søkt</button>
+          <button data-show="hidden">Skjult</button>
+        </nav>
+        <div class="row"><span class="label">Sted</span><div id="cities" class="chips"></div></div>
+        <div class="row"><span class="label">Kilde</span><div id="sources" class="chips"></div></div>
+        <div class="row between">
+          <strong id="count"></strong>
+          <select id="sort">
+            <option value="score">Best match først</option>
+            <option value="newest">Nyeste først</option>
+            <option value="deadline">Frist først</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="list"><p class="empty">Laster …</p></section>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <!-- CV-en lagres bare i nettleseren, og brukes i «Søknadsprompt» -->
+    <dialog id="cv-dialog">
+      <h2>Min CV</h2>
+      <p class="meta">Lim inn CV-en din: utdanning, prosjekter, teknologier, jobber og frivillig arbeid.
+        Den lagres bare i denne nettleseren, ikke på nettsiden eller GitHub.</p>
+      <textarea id="cv-text" rows="16" placeholder="Bachelor i IT, UiA (2027) …"></textarea>
+      <div class="actions">
+        <button id="cv-save" class="btn primary">Lagre</button>
+        <button id="cv-close" class="btn ghost">Lukk</button>
+      </div>
+    </dialog>
+
+    <div id="toast" role="status"></div>
+  </body>
+</html>
