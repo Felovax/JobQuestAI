@@ -6,7 +6,7 @@
 
 filters:
   # Steder vi følger. Stillinger uten oppgitt sted slipper alltid gjennom.
-  locations: [Bergen, Oslo, Kristiansand]
+  locations: [Bergen, Oslo, Kristiansand, Stavanger]
 
   # Fjern deltid, vikariat osv. når kilden oppgir det
   full_time_only: true

@@ -5,7 +5,7 @@ import type { Job, JobsFile } from "./types";
 import { loadMarks, saveMarks } from "./storage";
 import "./style.css";
 
-const CITIES = ["Bergen", "Oslo", "Kristiansand"];
+const CITIES = ["Bergen", "Oslo", "Kristiansand", "Stavanger"];
 const NEW_DAYS = 3; // stillinger nyere enn dette får "Ny"-merke
 
 // ── Tilstand: alt som styrer hva som vises ───────────────────
