@@ -4,9 +4,7 @@ Alle innstillinger hentes fra 'filters' i config.yaml.
 """
 import re
 
-# Tegn på at stillingen krever mye erfaring (trekker ned scoren)
-SENIOR_SIGNALS = ["senior", "erfaren", "lang erfaring", "minimum 5 år", "minst 5 år",
-                  "5+ år", "5 års erfaring", "tech lead", "teamleder"]
+import experience
 
 # Kilder der vi stoler på at varselet allerede er filtrert på fagfelt og sted
 PREFILTERED_PREFIX = "email:"
@@ -24,7 +22,7 @@ def contains(text: str, word: str) -> bool:
 
 
 def check(job: dict, filters: dict) -> tuple[bool, int, list[str]]:
-    """Returnerer (behold?, score, grunner)."""
+    """Returnerer (behold?, score, grunner). Legger også erfaringsvurderingen på jobben."""
     title = job["title"].lower()
     description = job["description"].lower()
     everything = f"{title} {description}"
@@ -48,6 +46,17 @@ def check(job: dict, filters: dict) -> tuple[bool, int, list[str]]:
         if not any(contains(title, w) for w in it_words):
             return False, 0, ["Ser ikke ut som en IT-stilling"]
 
+    # Erfaringskrav: vi er nyutdannede, så stillinger med klare krav sorteres bort
+    exp = experience.analyze(job["description"], job["title"])
+    exp.junior_ok = exp.junior_ok or any(contains(everything, w) for w in filters["include_levels"])
+    max_years = filters.get("max_experience_years", 2)
+    if exp.years is not None and exp.years > max_years and not exp.junior_ok:
+        return False, 0, [f"Krever {exp.years} års erfaring"]
+    if exp.demanding and not exp.junior_ok and filters.get("hide_demanding", True):
+        return False, 0, ["Krever mye erfaring"]
+    # E-postvarsler har bare tittel, så der vet vi ikke noe om kravene
+    job["experience"] = "" if prefiltered else ("Passer nyutdannede" if exp.junior_ok else exp.note)
+
     # ── Poeng ────────────────────────────────────────────────
     score = 20
     reasons = []
@@ -61,15 +70,15 @@ def check(job: dict, filters: dict) -> tuple[bool, int, list[str]]:
     if body_hits:
         reasons.append("Nevner: " + ", ".join(body_hits))
 
-    levels = [w for w in filters["include_levels"] if contains(everything, w)]
-    if levels:
-        score += 20
-        reasons.append("Passer nyutdannede (" + ", ".join(levels) + ")")
-
-    senior = [w for w in SENIOR_SIGNALS if contains(description, w)]
-    if senior:
-        score -= 15
-        reasons.append("Kan kreve erfaring (" + ", ".join(senior[:2]) + ")")
+    # Mest poeng til stillinger som sier at nyutdannede passer, litt til dem som ikke
+    # nevner erfaring, og trekk for dem som ønsker 1–2 års erfaring.
+    # (Selve vurderingen vises som eget merke på nettsiden, så den står ikke i «reasons».)
+    if job["experience"] == "Passer nyutdannede":
+        score += 25
+    elif exp.years is not None:   # her er years alltid 1–2, ellers ble stillingen skjult over
+        score -= 5
+    elif not prefiltered:
+        score += 5
 
     score = max(0, min(100, score))
     return score >= filters.get("min_score", 0), score, reasons

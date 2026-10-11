@@ -18,6 +18,7 @@ export type Job = {
   links: Link[];
   score: number;
   reasons: string[];
+  experience: string;           // f.eks. "Passer nyutdannede", "Krever 2+ års erfaring", "" = ukjent
 };
 
 export type SourceStatus = { name: string; ok: boolean; count: number; error?: string };

@@ -64,3 +64,27 @@ def test_frister_tolkes():
     assert parse_deadline("Snarest") == ""
     assert parse_deadline("Løpende") == ""
     assert parse_deadline(None) == ""
+
+
+def test_erfaringsanalyse():
+    from experience import analyze
+    assert analyze("Du har minst 3 års erfaring med Java").years == 3
+    assert analyze("Vi ser etter deg med 2-4 års relevant erfaring").years == 2
+    assert analyze("You have 5+ years of professional experience").years == 5
+    assert analyze("Vi har over 25 års erfaring som konsulentselskap").years is None
+    assert analyze("Du har lang erfaring med skyplattformer").demanding
+    assert analyze("Erfaring er en fordel, men ikke et krav").junior_ok
+    assert analyze("Du får jobbe med erfarne kolleger").demanding is False
+    assert analyze("Spennende stilling", "Erfaren utvikler").demanding
+
+
+def test_erfaringskrav_filtrerer():
+    krever = job(title="Python-utvikler", description="Du har minst 5 års erfaring")
+    assert not filters.check(krever, FILTERS)[0]
+    nyutdannet = job(title="Python-utvikler", description="Passer for nyutdannede. Minst 5 års erfaring er en fordel")
+    assert filters.check(nyutdannet, FILTERS)[0]
+    lang = job(title="Utvikler", description="Du har solid erfaring fra produksjon")
+    assert not filters.check(lang, FILTERS)[0]
+    litt = job(title="Utvikler", description="1-2 års erfaring")
+    ingen = job(title="Utvikler", description="Spennende produkt")
+    assert filters.check(litt, FILTERS)[1] < filters.check(ingen, FILTERS)[1]

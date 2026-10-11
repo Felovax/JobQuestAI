@@ -14,6 +14,13 @@ filters:
   # Ord som gir ekstra poeng fordi de tyder på at nyutdannede passer
   include_levels: [junior, nyutdannet, nyutdannede, graduate, trainee, bachelor]
 
+  # Erfaringskrav (vi er nyutdannede):
+  #   Stillinger som krever flere år enn dette, skjules – med mindre annonsen
+  #   også sier at nyutdannede passer. Sett høyere for å se flere stillinger.
+  max_experience_years: 2
+  # Skjul stillinger som krever «lang/solid/flere års erfaring» uten å oppgi tall
+  hide_demanding: true
+
   # Stillingen forkastes hvis tittelen inneholder et av disse ordene
   exclude_title_words: [senior, lead, principal, sjef, leder, arkitekt]
 

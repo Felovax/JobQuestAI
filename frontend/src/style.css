@@ -119,6 +119,13 @@ h2 { font-size: 16px; margin: 0 0 2px; }
 .btn.ghost { border-color: transparent; color: var(--muted); }
 .empty { text-align: center; color: var(--muted); padding: 40px 0; }
 
+/* Erfaringsmerke ved firma/sted */
+.exp { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; margin-left: 6px; }
+.exp.junior { background: color-mix(in srgb, var(--good) 15%, transparent); color: var(--good); font-weight: 600; }
+.exp.some { background: color-mix(in srgb, var(--mid) 15%, transparent); color: var(--mid); }
+.exp.none { background: var(--bg); color: var(--muted); }
+.toggle-junior { display: flex; gap: 6px; align-items: center; font-size: 14px; margin-left: auto; margin-right: 12px; cursor: pointer; }
+
 /* CV-dialog */
 dialog {
   width: min(640px, calc(100vw - 32px));

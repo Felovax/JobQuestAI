@@ -17,6 +17,7 @@ const state = {
   city: "Alle",
   source: "Alle",
   sort: "score" as "score" | "newest" | "deadline",
+  juniorOnly: false,  // vis bare stillinger som sier at nyutdannede passer
   show: "open" as "open" | "applied" | "hidden",
   marks: loadMarks(),
   expanded: new Set<string>(),
@@ -49,6 +50,13 @@ function deadlineBadge(job: Job): string {
   return `<span class="badge ${days <= 2 ? "urgent" : "soon"}">${text}</span>`;
 }
 
+function experienceBadge(job: Job): string {
+  if (!job.experience) return "";
+  const kind = job.experience === "Passer nyutdannede" ? "junior"
+    : job.experience.startsWith("Krever") || job.experience.startsWith("Ønsker") ? "some" : "none";
+  return `<span class="exp ${kind}">${escape(job.experience)}</span>`;
+}
+
 function formatDate(isoDate: string): string {
   return new Date(isoDate).toLocaleDateString("no-NO", { day: "numeric", month: "short" });
 }
@@ -65,6 +73,7 @@ function visibleJobs(): Job[] {
     if (state.show === "hidden" && mark !== "hidden") return false;
     if (state.city !== "Alle" && !job.location.toLowerCase().includes(state.city.toLowerCase())) return false;
     if (state.source !== "Alle" && !job.sources.includes(state.source)) return false;
+    if (state.juniorOnly && job.experience !== "Passer nyutdannede") return false;
     if (q && !`${job.title} ${job.company} ${job.description}`.toLowerCase().includes(q)) return false;
     return true;
   });
@@ -101,7 +110,7 @@ function renderCard(job: Job): string {
       <div class="body">
         <h2>${escape(job.title)} ${isNew ? '<span class="badge new">Ny</span>' : ""} ${deadlineBadge(job)}
             ${mark === "applied" ? '<span class="badge applied">Søkt</span>' : ""}</h2>
-        <p class="meta">${meta}</p>
+        <p class="meta">${meta} ${experienceBadge(job)}</p>
         ${dates ? `<p class="meta small">${dates}</p>` : ""}
         ${job.reasons.length ? `<ul class="reasons">${job.reasons.map((r) => `<li>${escape(r)}</li>`).join("")}</ul>` : ""}
         ${job.description ? `<button class="link toggle">${open ? "Skjul beskrivelse" : "Vis beskrivelse"}</button>` : ""}
@@ -190,6 +199,10 @@ function setupCvDialog(): void {
 function setupEvents(): void {
   $("#search").addEventListener("input", (e) => {
     state.query = (e.target as HTMLInputElement).value;
+    render();
+  });
+  $("#junior-only").addEventListener("change", (e) => {
+    state.juniorOnly = (e.target as HTMLInputElement).checked;
     render();
   });
   $("#sort").addEventListener("change", (e) => {
