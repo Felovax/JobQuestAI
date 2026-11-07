@@ -1,0 +1,42 @@
+(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))n(a);new MutationObserver(a=>{for(const o of a)if(o.type==="childList")for(const c of o.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&n(c)}).observe(document,{childList:!0,subtree:!0});function r(a){const o={};return a.integrity&&(o.integrity=a.integrity),a.referrerPolicy&&(o.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?o.credentials="include":a.crossOrigin==="anonymous"?o.credentials="omit":o.credentials="same-origin",o}function n(a){if(a.ep)return;a.ep=!0;const o=r(a);fetch(a.href,o)}})();const k="jobquest-marks";function L(){try{return JSON.parse(localStorage.getItem(k)??"{}")}catch{return{}}}function w(e){try{localStorage.setItem(k,JSON.stringify(e))}catch{}}const h="jobquest-cv";function y(){try{return localStorage.getItem(h)??""}catch{return""}}function S(e){try{localStorage.setItem(h,e)}catch{}}function C(e,t){const r=e.description.length<300;return`Hjelp meg å skrive et utkast til jobbsøknad på norsk for stillingen under.
+
+Regler:
+- Bruk BARE erfaring, utdanning og ferdigheter som står i CV-en min. Ikke dikt opp noe.
+- Koble konkrete ting fra CV-en til kravene i annonsen.
+- 250–350 ord, konkret og personlig tone. Unngå floskler som «brennende engasjement».
+- Mangler det noe viktig, skriv [FYLL INN: ...] der det trengs.
+- Etter søknaden: gi meg 3 ting fra annonsen jeg bør trekke frem i et intervju.
+
+STILLING: ${e.title}
+ARBEIDSGIVER: ${e.company||"(ikke oppgitt)"}
+STED: ${e.location||"(ikke oppgitt)"}
+SØKNADSFRIST: ${e.deadline||"(ikke oppgitt)"}
+LENKE: ${e.apply_url}
+
+ANNONSETEKST:
+${e.description||"(mangler)"}
+${r?`
+(Annonseteksten over er kort. Åpne lenken og lim inn hele annonsen her for et bedre utkast.)
+`:""}
+MIN CV:
+${t.trim()||"[Lim inn CV-en din her – eller legg den inn under «Min CV» på JobQuestAI, så kommer den med automatisk]"}
+`}async function E(e){try{return await navigator.clipboard.writeText(e),!0}catch{const t=document.createElement("textarea");t.value=e,document.body.appendChild(t),t.select();const r=document.execCommand("copy");return t.remove(),r}}const T=["Bergen","Oslo","Kristiansand","Stavanger"],x=3,O=7,s={data:null,query:"",city:"Alle",source:"Alle",sort:"score",juniorOnly:!1,show:"open",marks:L(),expanded:new Set},i=e=>document.querySelector(e);function l(e){const t=document.createElement("div");return t.textContent=e,t.innerHTML}function A(e){return(Date.now()-new Date(e).getTime())/864e5}function $(e){if(!e.deadline_date)return null;const t=new Date(new Date().toISOString().slice(0,10)).getTime();return Math.round((new Date(e.deadline_date).getTime()-t)/864e5)}function M(e){const t=$(e);if(t===null||t>O)return"";const r=t===0?"Frist i dag":t===1?"Frist i morgen":`Frist om ${t} dager`;return`<span class="badge ${t<=2?"urgent":"soon"}">${r}</span>`}function N(e){return e.experience?`<span class="exp ${e.experience==="Passer nyutdannede"?"junior":e.experience.startsWith("Krever")||e.experience.startsWith("Ønsker")?"some":"none"}">${l(e.experience)}</span>`:""}function f(e){return new Date(e).toLocaleDateString("no-NO",{day:"numeric",month:"short"})}function I(){const e=s.query.toLowerCase(),t=s.data.jobs.filter(r=>{const n=s.marks[r.id],a=$(r);return!(a!==null&&a<0||s.show==="open"&&n||s.show==="applied"&&n!=="applied"||s.show==="hidden"&&n!=="hidden"||s.city!=="Alle"&&!r.location.toLowerCase().includes(s.city.toLowerCase())||s.source!=="Alle"&&!r.sources.includes(s.source)||s.juniorOnly&&r.experience!=="Passer nyutdannede"||e&&!`${r.title} ${r.company} ${r.description}`.toLowerCase().includes(e))});return s.sort==="newest"?t.sort((r,n)=>(n.published||"").localeCompare(r.published||"")):s.sort==="deadline"&&t.sort((r,n)=>(r.deadline_date||"9999").localeCompare(n.deadline_date||"9999")),t}function b(e){const t=s.marks[e.id],r=e.published&&A(e.published)<=x,n=s.expanded.has(e.id),a=e.score>=60?"high":e.score>=40?"mid":"low",o=[e.company,e.location||"Sted ikke oppgitt"].filter(Boolean).map(l).join(" · "),c=[e.published?`Publisert ${f(e.published)}`:"",e.deadline_date?`Frist: ${f(e.deadline_date)}`:e.deadline?`Frist: ${l(e.deadline)}`:""].filter(Boolean).join(" · "),v=e.links.map((u,m)=>`<a class="btn ${m===0?"primary":""}" href="${l(u.url)}" target="_blank" rel="noopener">
+        ${m===0?"Les og søk":"Også på"} · ${l(u.source)} ↗</a>`).join("");return`
+    <article class="card ${t??""}" data-id="${l(e.id)}">
+      <div class="score ${a}" title="Match-score">${e.score}</div>
+      <div class="body">
+        <h2>${l(e.title)} ${r?'<span class="badge new">Ny</span>':""} ${M(e)}
+            ${t==="applied"?'<span class="badge applied">Søkt</span>':""}</h2>
+        <p class="meta">${o} ${N(e)}</p>
+        ${c?`<p class="meta small">${c}</p>`:""}
+        ${e.reasons.length?`<ul class="reasons">${e.reasons.map(u=>`<li>${l(u)}</li>`).join("")}</ul>`:""}
+        ${e.description?`<button class="link toggle">${n?"Skjul beskrivelse":"Vis beskrivelse"}</button>`:""}
+        ${n?`<div class="desc">${l(e.description)}</div>`:""}
+        <div class="actions">
+          ${v}
+          <button class="btn prompt" title="Kopierer en ferdig prompt med annonsen og CV-en din – lim den inn i Claude.ai">Søknadsprompt</button>
+          <button class="btn mark" data-mark="applied">${t==="applied"?"Angre søkt":"Merk som søkt"}</button>
+          <button class="btn ghost mark" data-mark="hidden">${t==="hidden"?"Vis igjen":"Skjul"}</button>
+        </div>
+      </div>
+    </article>`}function d(){const e=s.data,t=I();i("#count").textContent=`${t.length} stillinger`,i("#list").innerHTML=t.length?t.map(b).join(""):'<p class="empty">Ingen stillinger her. Prøv et annet filter.</p>';const r=["Alle",...new Set(e.jobs.flatMap(n=>n.sources))];i("#sources").innerHTML=r.map(n=>`<button class="chip ${s.source===n?"on":""}" data-source="${l(n)}">${l(n)}</button>`).join(""),i("#cities").innerHTML=["Alle",...T].map(n=>`<button class="chip ${s.city===n?"on":""}" data-city="${n}">${n}</button>`).join(""),document.querySelectorAll("#tabs button").forEach(n=>n.classList.toggle("on",n.dataset.show===s.show))}function D(){const e=s.data,t=new Date(e.updated).toLocaleString("no-NO",{dateStyle:"medium",timeStyle:"short"}),r=e.sources.map(n=>`<span class="${n.ok?"ok":"fail"}" title="${l(n.error??"")}">${l(n.name)}: ${n.ok?n.count:"feilet"}</span>`).join("");i("#footer").innerHTML=`Oppdatert ${t}<div class="status">${r}</div>`}let g=0;function p(e){const t=i("#toast");t.innerHTML=e,t.classList.add("show"),clearTimeout(g),g=window.setTimeout(()=>t.classList.remove("show"),6e3)}async function V(e){const t=s.data.jobs.find(a=>a.id===e);if(!t)return;const r=y();if(!await E(C(t,r))){p("Klarte ikke å kopiere. Prøv en annen nettleser.");return}p('Prompt kopiert! Lim den inn i <a href="https://claude.ai/new" target="_blank" rel="noopener">Claude.ai ↗</a>'+(r.trim()?"":"<br><small>Tips: legg inn CV-en din under «Min CV», så kommer den med automatisk.</small>"))}function K(){const e=i("#cv-dialog"),t=i("#cv-text");i("#cv-open").addEventListener("click",()=>{t.value=y(),e.showModal()}),i("#cv-save").addEventListener("click",()=>{S(t.value),e.close(),p("CV lagret i denne nettleseren.")}),i("#cv-close").addEventListener("click",()=>e.close())}function P(){i("#search").addEventListener("input",e=>{s.query=e.target.value,d()}),i("#junior-only").addEventListener("change",e=>{s.juniorOnly=e.target.checked,d()}),i("#sort").addEventListener("change",e=>{s.sort=e.target.value,d()}),document.addEventListener("click",e=>{const t=e.target,r=t.closest(".card"),n=r==null?void 0:r.dataset.id;if(t.dataset.city)s.city=t.dataset.city;else if(t.dataset.source)s.source=t.dataset.source;else if(t.dataset.show)s.show=t.dataset.show;else if(n&&t.classList.contains("toggle"))s.expanded.has(n)?s.expanded.delete(n):s.expanded.add(n);else if(n&&t.classList.contains("prompt")){V(n);return}else if(n&&t.dataset.mark){const a=t.dataset.mark;s.marks[n]===a?delete s.marks[n]:s.marks[n]=a,w(s.marks)}else return;d()})}async function _(){var e;try{const t=await fetch(`./jobs.json?t=${Date.now()}`);s.data=await t.json()}catch{i("#list").innerHTML='<p class="empty">Fant ingen stillinger ennå. Kjør "Oppdater stillinger" under Actions på GitHub.</p>';return}if(!((e=s.data)!=null&&e.jobs)){i("#list").innerHTML='<p class="empty">Ingen data ennå – første kjøring har ikke skjedd.</p>';return}P(),K(),D(),d()}_();
